@@ -206,22 +206,22 @@ x[x&gt;&quot;a&quot;]</code></pre>
 <p>This princliple can be used to remove missing values.</p>
 <pre class="r"><code>x&lt;-c(1:8, rep(NA, 8))
 x&lt;-sample(x); x</code></pre>
-<pre><code>##  [1] NA NA NA NA NA NA NA  8  5  3  2  4  6  7 NA  1</code></pre>
+<pre><code>##  [1]  7 NA NA NA NA NA  4  8  1  5 NA  3 NA  2 NA  6</code></pre>
 <pre class="r"><code>keep&lt;-!is.na(x); keep</code></pre>
-<pre><code>##  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE
-## [12]  TRUE  TRUE  TRUE FALSE  TRUE</code></pre>
+<pre><code>##  [1]  TRUE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE
+## [12]  TRUE FALSE  TRUE FALSE  TRUE</code></pre>
 <pre class="r"><code>x[keep]</code></pre>
-<pre><code>## [1] 8 5 3 2 4 6 7 1</code></pre>
+<pre><code>## [1] 7 4 8 1 5 3 2 6</code></pre>
 <p>The complete.cases() function can be invoked when you want to perform a similar operation on more than one vector, <em>each of which have the same length</em></p>
 <pre class="r"><code>x&lt;-c(1:8, rep(NA, 8)); x&lt;-sample(x); x</code></pre>
-<pre><code>##  [1]  6 NA NA  3  7  1 NA  2 NA NA  8  4 NA NA NA  5</code></pre>
+<pre><code>##  [1] NA  6  8  1 NA  4 NA NA  5 NA NA  3  7  2 NA NA</code></pre>
 <pre class="r"><code>y&lt;-c(letters[1:8], rep(NA, 8)); y&lt;-sample(y); y</code></pre>
-<pre><code>##  [1] &quot;g&quot; NA  NA  NA  NA  &quot;h&quot; NA  NA  &quot;d&quot; NA  NA  &quot;f&quot; &quot;a&quot; &quot;c&quot; &quot;e&quot; &quot;b&quot;</code></pre>
+<pre><code>##  [1] NA  NA  NA  &quot;a&quot; NA  &quot;c&quot; &quot;d&quot; &quot;e&quot; NA  NA  &quot;g&quot; NA  NA  &quot;b&quot; &quot;h&quot; &quot;f&quot;</code></pre>
 <pre class="r"><code>keep&lt;-complete.cases(x,y)
 rbind(x[keep], y[keep])</code></pre>
-<pre><code>##      [,1] [,2] [,3] [,4]
-## [1,] &quot;6&quot;  &quot;1&quot;  &quot;4&quot;  &quot;5&quot; 
-## [2,] &quot;g&quot;  &quot;h&quot;  &quot;f&quot;  &quot;b&quot;</code></pre>
+<pre><code>##      [,1] [,2] [,3]
+## [1,] &quot;1&quot;  &quot;4&quot;  &quot;2&quot; 
+## [2,] &quot;a&quot;  &quot;c&quot;  &quot;b&quot;</code></pre>
 <p>Logical subsetting works on the same principles as numerical subsetting</p>
 <pre class="r"><code>l</code></pre>
 <pre><code>## $foo
