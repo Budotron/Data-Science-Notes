@@ -87,9 +87,9 @@ b; class(b)</code></pre>
 <pre><code>## logical(0)</code></pre>
 <p>The above function takes two arguments: the <strong>class</strong> of the vector (the types of objects that you want to have in the vector), and the <strong>length</strong> of the vector.</p>
 <p>We <strong>cannot</strong> have mixed types of objects in a vector. A <em>list</em> is represented as a vector, but each element of that vector can belong to a different class. Any element of a list can be anything, a data frame, another list…</p>
-<pre class="r"><code>v&lt;-c(2, &quot;ass&quot;, 1L)
+<pre class="r"><code>v&lt;-c(2, &quot;bass&quot;, 1L)
 v; class(v)</code></pre>
-<pre><code>## [1] &quot;2&quot;   &quot;ass&quot; &quot;1&quot;</code></pre>
+<pre><code>## [1] &quot;2&quot;    &quot;bass&quot; &quot;1&quot;</code></pre>
 <pre><code>## [1] &quot;character&quot;</code></pre>
 <p>With vectors of mixed objects, R will create a “least common denominator” vector. This is called <strong>coersion</strong>. Objects can be explicitly coerced with as. functions. Nonsensical coercions return NAs</p>
 <pre class="r"><code>x&lt;-0:6
@@ -151,7 +151,7 @@ x[[3]]</code></pre>
 <pre><code>## [1] &quot;numeric&quot;</code></pre>
 <pre class="r"><code>class(1L)</code></pre>
 <pre><code>## [1] &quot;integer&quot;</code></pre>
-<pre class="r"><code>class(3.2L)</code></pre>
+<pre class="r"><code>class(3.2L) #3.2L is coerced to numeric</code></pre>
 <pre><code>## [1] &quot;numeric&quot;</code></pre>
 <p>Inf stands for infinity. This expression can be treated as a real number</p>
 <pre class="r"><code>1/0</code></pre>

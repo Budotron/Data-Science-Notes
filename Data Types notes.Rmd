@@ -32,7 +32,7 @@ The above function takes two arguments: the **class** of the vector (the types o
 
 We **cannot** have mixed types of objects in a vector. A *list* is represented as a vector, but each element of that vector can belong to a different class. Any element of a list can be anything, a data frame, another list...
 ```{r}
-v<-c(2, "ass", 1L)
+v<-c(2, "bass", 1L)
 v; class(v)
 ```
 With vectors of mixed objects, R will create a "least common denominator" vector. This is called **coersion**. Objects can be explicitly coerced with as. functions. Nonsensical coercions return NAs
@@ -72,7 +72,7 @@ All numbers in R are generally treated as numeric objects. The L suffix specifie
 ```{r}
 class(1)
 class(1L)
-class(3.2L)
+class(3.2L) #3.2L is coerced to numeric
 ```
 Inf stands for infinity. This expression can be treated as a real number
 ```{r}
