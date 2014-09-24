@@ -59,6 +59,11 @@ matrices can be constructed from vectors by adding the dim attribute
 m<-1:10; m
 dim(m)<-c(2, 5); m
 ```
+**Arrays** are kinda like a list of matrices, and are the same insofar as they are vectors that have a dimension attribute applied to them. 
+```{r}
+x<-1:20; dim(x)<-c(2,2,5);x
+```
+
 ### Exploring Lists
 Lists are vector-like objects with elements from different classes. If we print a list, the appearance is unlike what we saw before, because every element is listed seperately. The elements are indexed by double brackets. Here the first element is a one dimensional vector 1, the second element is a one dimensional vector "a", the third element is a vector of length 3 (1,2,3)
 ```{r}

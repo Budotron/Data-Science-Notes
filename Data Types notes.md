@@ -69,12 +69,12 @@ The above function takes two arguments: the **class** of the vector (the types o
 We **cannot** have mixed types of objects in a vector. A *list* is represented as a vector, but each element of that vector can belong to a different class. Any element of a list can be anything, a data frame, another list...
 
 ```r
-v<-c(2, "ass", 1L)
+v<-c(2, "bass", 1L)
 v; class(v)
 ```
 
 ```
-## [1] "2"   "ass" "1"
+## [1] "2"    "bass" "1"
 ```
 
 ```
@@ -172,6 +172,44 @@ dim(m)<-c(2, 5); m
 ## [1,]    1    3    5    7    9
 ## [2,]    2    4    6    8   10
 ```
+**Arrays** are kinda like a list of matrices, and are the same insofar as they are vectors that have a dimension attribute applied to them. 
+
+```r
+x<-1:20; dim(x)<-c(2,2,5);x
+```
+
+```
+## , , 1
+## 
+##      [,1] [,2]
+## [1,]    1    3
+## [2,]    2    4
+## 
+## , , 2
+## 
+##      [,1] [,2]
+## [1,]    5    7
+## [2,]    6    8
+## 
+## , , 3
+## 
+##      [,1] [,2]
+## [1,]    9   11
+## [2,]   10   12
+## 
+## , , 4
+## 
+##      [,1] [,2]
+## [1,]   13   15
+## [2,]   14   16
+## 
+## , , 5
+## 
+##      [,1] [,2]
+## [1,]   17   19
+## [2,]   18   20
+```
+
 ### Exploring Lists
 Lists are vector-like objects with elements from different classes. If we print a list, the appearance is unlike what we saw before, because every element is listed seperately. The elements are indexed by double brackets. Here the first element is a one dimensional vector 1, the second element is a one dimensional vector "a", the third element is a vector of length 3 (1,2,3)
 
@@ -222,7 +260,7 @@ class(1L)
 ```
 
 ```r
-class(3.2L)
+class(3.2L) #3.2L is coerced to numeric
 ```
 
 ```

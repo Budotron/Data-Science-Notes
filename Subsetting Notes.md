@@ -185,6 +185,64 @@ c(class(m), class(m[1,4, drop =F]))
 ```
 ## [1] "matrix" "matrix"
 ```
+eg: arrays
+Recall that arrays are like a list of matrices. To access a single matrix in this list, use [ ], and specify all dimensions of the element you want to extract
+
+```r
+x<-1:20; dim(x)<-c(2,2,5); x
+```
+
+```
+## , , 1
+## 
+##      [,1] [,2]
+## [1,]    1    3
+## [2,]    2    4
+## 
+## , , 2
+## 
+##      [,1] [,2]
+## [1,]    5    7
+## [2,]    6    8
+## 
+## , , 3
+## 
+##      [,1] [,2]
+## [1,]    9   11
+## [2,]   10   12
+## 
+## , , 4
+## 
+##      [,1] [,2]
+## [1,]   13   15
+## [2,]   14   16
+## 
+## , , 5
+## 
+##      [,1] [,2]
+## [1,]   17   19
+## [2,]   18   20
+```
+
+```r
+# obtain the third matrix in the array
+x[, , 3]
+```
+
+```
+##      [,1] [,2]
+## [1,]    9   11
+## [2,]   10   12
+```
+
+```r
+# obtain the first row of the second element in the array
+x[1, , 3]
+```
+
+```
+## [1]  9 11
+```
 * [[ ]] is used to extract *a single element* of a **list** or a **data frame**. This element may or may not be of the same class as the subsetted object
 
 eg: lists
@@ -349,7 +407,7 @@ x<-sample(x); x
 ```
 
 ```
-##  [1]  8 NA  4 NA NA NA NA NA NA NA  3  5  7  2  6  1
+##  [1] NA  3 NA  1 NA NA  8  4 NA  7  5  2 NA  6 NA NA
 ```
 
 ```r
@@ -357,8 +415,8 @@ keep<-!is.na(x); keep
 ```
 
 ```
-##  [1]  TRUE FALSE  TRUE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
-## [12]  TRUE  TRUE  TRUE  TRUE  TRUE
+##  [1] FALSE  TRUE FALSE  TRUE FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE
+## [12]  TRUE FALSE  TRUE FALSE FALSE
 ```
 
 ```r
@@ -366,7 +424,7 @@ x[keep]
 ```
 
 ```
-## [1] 8 4 3 5 7 2 6 1
+## [1] 3 1 8 4 7 5 2 6
 ```
 The complete.cases() function can be invoked when you want to perform a similar operation on more than one vector, *each of which have the same length*
 
@@ -375,7 +433,7 @@ x<-c(1:8, rep(NA, 8)); x<-sample(x); x
 ```
 
 ```
-##  [1]  7 NA  2  8 NA NA  5 NA NA  3 NA  6 NA  1 NA  4
+##  [1] NA  5 NA NA NA  3  4 NA  7  2 NA NA  8 NA  6  1
 ```
 
 ```r
@@ -383,7 +441,7 @@ y<-c(letters[1:8], rep(NA, 8)); y<-sample(y); y
 ```
 
 ```
-##  [1] NA  "a" "f" "g" NA  NA  NA  NA  "h" "b" "e" "d" NA  NA  NA  "c"
+##  [1] NA  NA  "f" "d" "g" NA  NA  "b" "e" NA  NA  "c" NA  NA  "a" "h"
 ```
 
 ```r
@@ -392,9 +450,9 @@ rbind(x[keep], y[keep])
 ```
 
 ```
-##      [,1] [,2] [,3] [,4] [,5]
-## [1,] "2"  "8"  "3"  "6"  "4" 
-## [2,] "f"  "g"  "b"  "d"  "c"
+##      [,1] [,2] [,3]
+## [1,] "7"  "6"  "1" 
+## [2,] "e"  "a"  "h"
 ```
 
 Logical subsetting works on the same principles as numerical subsetting

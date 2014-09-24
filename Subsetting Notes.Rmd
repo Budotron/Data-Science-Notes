@@ -55,6 +55,15 @@ This behaviour can be turned off by setting the drop argument to F
 m[1,4, drop =F]
 c(class(m), class(m[1,4, drop =F]))
 ```
+eg: arrays
+Recall that arrays are like a list of matrices. To access a single matrix in this list, use [ ], and specify all dimensions of the element you want to extract
+```{r}
+x<-1:20; dim(x)<-c(2,2,5); x
+# obtain the third matrix in the array
+x[, , 3]
+# obtain the first row of the second element in the array
+x[1, , 3]
+```
 * [[ ]] is used to extract *a single element* of a **list** or a **data frame**. This element may or may not be of the same class as the subsetted object
 
 eg: lists
