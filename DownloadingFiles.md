@@ -1,7 +1,7 @@
 ---
 title: 'CGD: Downloading Files'
-date: "September 24, 2014"
 output: html_document
+date: "September 24, 2014"
 ---
 ## Downloading the files
 First steps
@@ -37,14 +37,14 @@ eg: downloading data on [Baltimore Fixed Speed Camera](https://data.baltimorecit
 #Input: Link to the file, desired directory name, desired, file name, and file extension
 #Output: The path to the required file
 
-getandload<-function(fileUrl, dir, filename, ext){
+createAndDownload<-function(fileUrl, dir, filename, ext){
         # Step 1: create directory, if it is not already present
-        dirName<-paste("./", dir, sep = "")
+        dirName<-paste(dir, sep = "")
         if(!file.exists(dirName)){
                 dir.create(path = dirName)
         }
         # Step 2: Get the data, unless this step has already been done
-        dest<-paste(dirName,"/", filename, ext, sep = "")
+        dest<-paste("./", dirName,"/", filename, ext, sep = "")
         if(!file.exists(dest)){
                 download.file(url = fileUrl, destfile = dest, method = "curl") 
                 datedownloaded<-date()
@@ -52,7 +52,7 @@ getandload<-function(fileUrl, dir, filename, ext){
         dest
 }
 fileUrl<-"https://data.baltimorecity.gov/api/views/dz54-2aru/rows.csv?accessType=DOWNLOAD"
-dest<-getandload(fileUrl, dir="camera", filename="camera", ext = ".csv")
+dest<-createAndDownload(fileUrl, dir="camera", filename="camera", ext = ".csv")
 # Step 3: load the data
 # because the variable names are included at the top of each file, header = T
 camdat<-read.table(file = dest, header = T, sep = ",")
@@ -81,13 +81,13 @@ _*Troubleshooting*_
 ### Excel 
 
 1. require the xlsx package
-2. run getandload() with the appropriate parameters
+2. run createAndDownload() with the appropriate parameters
 3. in step 3, use read.xlsx() instead of read.table() specifying which sheet the data is stored on with sheetIndex, and specify the header, if necessary
 
 
 ```r
 fileUrl<-"https://data.baltimorecity.gov/api/views/dz54-2aru/rows.xlsx?accessType=DOWNLOAD"
-dest<-getandload(fileUrl = fileUrl, dir = "camera", filename = "camera", ext = ".xls") #This is not supposed to happen. The ext should be ".xlsx", but it only works this way
+dest<-createAndDownload(fileUrl = fileUrl, dir = "camera", filename = "camera", ext = ".xlsx") 
 require("xlsx")
 camdat2<-read.xlsx(file = dest, sheetIndex = 1, header = T)
 ```
@@ -119,6 +119,7 @@ write.xlsx(camdat2subset, file = "./camera/camera2.xlsx")
 * frequently used to store structured data
 * widely used in internet applications
 * extracting XML is the basis for most web scraping
+* "XML" package does not support http**s** (secure http). Delete "s" of https manually or by using sub(https, http, fileURL)
 
 **Tags** correspond to general labels
 
@@ -387,1064 +388,444 @@ If we have to export to an API that requires API formatted data, use toJSON. To 
 
 ```r
 myJson<-toJSON(iris, pretty = T)
-head(cat(myJson))
+# head(cat(myJson))
+```
+
+### Quiz
+Question 1
+The American Community Survey distributes downloadable data about United States communities. Download the 2006 microdata survey about housing for the state of Idaho using download.file() from here: 
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv 
+and load the data into R. The code book, describing the variable names is here: 
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FPUMSDataDict06.pdf 
+How many properties are worth $1,000,000 or more?
+
+Solution outline    
+1. run createAndDownload()  
+2. read the data into R using read.csv()  
+According to the code book, the variable "VAL" contains the property values, and those properties valued in excess of $1M are listed as 24.   
+3. locate and count up the number of entries under VAL that are 24
+
+
+
+```r
+fileUrl<-"https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06hid.csv"
+dest<-createAndDownload(fileUrl = fileUrl, dir = "microdatasurvey", filename =  "housingMicrodata", ext = ".csv")
+data<-read.csv(dest)
+milPlus<-length(which(data$VAL %in% 24))
+paste("There are", milPlus, "properties worth in excess of 1M", sep = " ")
 ```
 
 ```
-## [
-## 	{
-## 		"Sepal.Length" : 5.1,
-## 		"Sepal.Width" : 3.5,
-## 		"Petal.Length" : 1.4,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.9,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 1.4,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.7,
-## 		"Sepal.Width" : 3.2,
-## 		"Petal.Length" : 1.3,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.6,
-## 		"Sepal.Width" : 3.1,
-## 		"Petal.Length" : 1.5,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5,
-## 		"Sepal.Width" : 3.6,
-## 		"Petal.Length" : 1.4,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.4,
-## 		"Sepal.Width" : 3.9,
-## 		"Petal.Length" : 1.7,
-## 		"Petal.Width" : 0.4,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.6,
-## 		"Sepal.Width" : 3.4,
-## 		"Petal.Length" : 1.4,
-## 		"Petal.Width" : 0.3,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5,
-## 		"Sepal.Width" : 3.4,
-## 		"Petal.Length" : 1.5,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.4,
-## 		"Sepal.Width" : 2.9,
-## 		"Petal.Length" : 1.4,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.9,
-## 		"Sepal.Width" : 3.1,
-## 		"Petal.Length" : 1.5,
-## 		"Petal.Width" : 0.1,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.4,
-## 		"Sepal.Width" : 3.7,
-## 		"Petal.Length" : 1.5,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.8,
-## 		"Sepal.Width" : 3.4,
-## 		"Petal.Length" : 1.6,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.8,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 1.4,
-## 		"Petal.Width" : 0.1,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.3,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 1.1,
-## 		"Petal.Width" : 0.1,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.8,
-## 		"Sepal.Width" : 4,
-## 		"Petal.Length" : 1.2,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.7,
-## 		"Sepal.Width" : 4.4,
-## 		"Petal.Length" : 1.5,
-## 		"Petal.Width" : 0.4,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.4,
-## 		"Sepal.Width" : 3.9,
-## 		"Petal.Length" : 1.3,
-## 		"Petal.Width" : 0.4,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.1,
-## 		"Sepal.Width" : 3.5,
-## 		"Petal.Length" : 1.4,
-## 		"Petal.Width" : 0.3,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.7,
-## 		"Sepal.Width" : 3.8,
-## 		"Petal.Length" : 1.7,
-## 		"Petal.Width" : 0.3,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.1,
-## 		"Sepal.Width" : 3.8,
-## 		"Petal.Length" : 1.5,
-## 		"Petal.Width" : 0.3,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.4,
-## 		"Sepal.Width" : 3.4,
-## 		"Petal.Length" : 1.7,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.1,
-## 		"Sepal.Width" : 3.7,
-## 		"Petal.Length" : 1.5,
-## 		"Petal.Width" : 0.4,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.6,
-## 		"Sepal.Width" : 3.6,
-## 		"Petal.Length" : 1,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.1,
-## 		"Sepal.Width" : 3.3,
-## 		"Petal.Length" : 1.7,
-## 		"Petal.Width" : 0.5,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.8,
-## 		"Sepal.Width" : 3.4,
-## 		"Petal.Length" : 1.9,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 1.6,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5,
-## 		"Sepal.Width" : 3.4,
-## 		"Petal.Length" : 1.6,
-## 		"Petal.Width" : 0.4,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.2,
-## 		"Sepal.Width" : 3.5,
-## 		"Petal.Length" : 1.5,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.2,
-## 		"Sepal.Width" : 3.4,
-## 		"Petal.Length" : 1.4,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.7,
-## 		"Sepal.Width" : 3.2,
-## 		"Petal.Length" : 1.6,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.8,
-## 		"Sepal.Width" : 3.1,
-## 		"Petal.Length" : 1.6,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.4,
-## 		"Sepal.Width" : 3.4,
-## 		"Petal.Length" : 1.5,
-## 		"Petal.Width" : 0.4,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.2,
-## 		"Sepal.Width" : 4.1,
-## 		"Petal.Length" : 1.5,
-## 		"Petal.Width" : 0.1,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.5,
-## 		"Sepal.Width" : 4.2,
-## 		"Petal.Length" : 1.4,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.9,
-## 		"Sepal.Width" : 3.1,
-## 		"Petal.Length" : 1.5,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5,
-## 		"Sepal.Width" : 3.2,
-## 		"Petal.Length" : 1.2,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.5,
-## 		"Sepal.Width" : 3.5,
-## 		"Petal.Length" : 1.3,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.9,
-## 		"Sepal.Width" : 3.6,
-## 		"Petal.Length" : 1.4,
-## 		"Petal.Width" : 0.1,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.4,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 1.3,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.1,
-## 		"Sepal.Width" : 3.4,
-## 		"Petal.Length" : 1.5,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5,
-## 		"Sepal.Width" : 3.5,
-## 		"Petal.Length" : 1.3,
-## 		"Petal.Width" : 0.3,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.5,
-## 		"Sepal.Width" : 2.3,
-## 		"Petal.Length" : 1.3,
-## 		"Petal.Width" : 0.3,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.4,
-## 		"Sepal.Width" : 3.2,
-## 		"Petal.Length" : 1.3,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5,
-## 		"Sepal.Width" : 3.5,
-## 		"Petal.Length" : 1.6,
-## 		"Petal.Width" : 0.6,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.1,
-## 		"Sepal.Width" : 3.8,
-## 		"Petal.Length" : 1.9,
-## 		"Petal.Width" : 0.4,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.8,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 1.4,
-## 		"Petal.Width" : 0.3,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.1,
-## 		"Sepal.Width" : 3.8,
-## 		"Petal.Length" : 1.6,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.6,
-## 		"Sepal.Width" : 3.2,
-## 		"Petal.Length" : 1.4,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.3,
-## 		"Sepal.Width" : 3.7,
-## 		"Petal.Length" : 1.5,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5,
-## 		"Sepal.Width" : 3.3,
-## 		"Petal.Length" : 1.4,
-## 		"Petal.Width" : 0.2,
-## 		"Species" : "setosa"
-## 	},
-## 	{
-## 		"Sepal.Length" : 7,
-## 		"Sepal.Width" : 3.2,
-## 		"Petal.Length" : 4.7,
-## 		"Petal.Width" : 1.4,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.4,
-## 		"Sepal.Width" : 3.2,
-## 		"Petal.Length" : 4.5,
-## 		"Petal.Width" : 1.5,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.9,
-## 		"Sepal.Width" : 3.1,
-## 		"Petal.Length" : 4.9,
-## 		"Petal.Width" : 1.5,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.5,
-## 		"Sepal.Width" : 2.3,
-## 		"Petal.Length" : 4,
-## 		"Petal.Width" : 1.3,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.5,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 4.6,
-## 		"Petal.Width" : 1.5,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.7,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 4.5,
-## 		"Petal.Width" : 1.3,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.3,
-## 		"Sepal.Width" : 3.3,
-## 		"Petal.Length" : 4.7,
-## 		"Petal.Width" : 1.6,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.9,
-## 		"Sepal.Width" : 2.4,
-## 		"Petal.Length" : 3.3,
-## 		"Petal.Width" : 1,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.6,
-## 		"Sepal.Width" : 2.9,
-## 		"Petal.Length" : 4.6,
-## 		"Petal.Width" : 1.3,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.2,
-## 		"Sepal.Width" : 2.7,
-## 		"Petal.Length" : 3.9,
-## 		"Petal.Width" : 1.4,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5,
-## 		"Sepal.Width" : 2,
-## 		"Petal.Length" : 3.5,
-## 		"Petal.Width" : 1,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.9,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 4.2,
-## 		"Petal.Width" : 1.5,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6,
-## 		"Sepal.Width" : 2.2,
-## 		"Petal.Length" : 4,
-## 		"Petal.Width" : 1,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.1,
-## 		"Sepal.Width" : 2.9,
-## 		"Petal.Length" : 4.7,
-## 		"Petal.Width" : 1.4,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.6,
-## 		"Sepal.Width" : 2.9,
-## 		"Petal.Length" : 3.6,
-## 		"Petal.Width" : 1.3,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.7,
-## 		"Sepal.Width" : 3.1,
-## 		"Petal.Length" : 4.4,
-## 		"Petal.Width" : 1.4,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.6,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 4.5,
-## 		"Petal.Width" : 1.5,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.8,
-## 		"Sepal.Width" : 2.7,
-## 		"Petal.Length" : 4.1,
-## 		"Petal.Width" : 1,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.2,
-## 		"Sepal.Width" : 2.2,
-## 		"Petal.Length" : 4.5,
-## 		"Petal.Width" : 1.5,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.6,
-## 		"Sepal.Width" : 2.5,
-## 		"Petal.Length" : 3.9,
-## 		"Petal.Width" : 1.1,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.9,
-## 		"Sepal.Width" : 3.2,
-## 		"Petal.Length" : 4.8,
-## 		"Petal.Width" : 1.8,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.1,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 4,
-## 		"Petal.Width" : 1.3,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.3,
-## 		"Sepal.Width" : 2.5,
-## 		"Petal.Length" : 4.9,
-## 		"Petal.Width" : 1.5,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.1,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 4.7,
-## 		"Petal.Width" : 1.2,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.4,
-## 		"Sepal.Width" : 2.9,
-## 		"Petal.Length" : 4.3,
-## 		"Petal.Width" : 1.3,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.6,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 4.4,
-## 		"Petal.Width" : 1.4,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.8,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 4.8,
-## 		"Petal.Width" : 1.4,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.7,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 5,
-## 		"Petal.Width" : 1.7,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6,
-## 		"Sepal.Width" : 2.9,
-## 		"Petal.Length" : 4.5,
-## 		"Petal.Width" : 1.5,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.7,
-## 		"Sepal.Width" : 2.6,
-## 		"Petal.Length" : 3.5,
-## 		"Petal.Width" : 1,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.5,
-## 		"Sepal.Width" : 2.4,
-## 		"Petal.Length" : 3.8,
-## 		"Petal.Width" : 1.1,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.5,
-## 		"Sepal.Width" : 2.4,
-## 		"Petal.Length" : 3.7,
-## 		"Petal.Width" : 1,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.8,
-## 		"Sepal.Width" : 2.7,
-## 		"Petal.Length" : 3.9,
-## 		"Petal.Width" : 1.2,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6,
-## 		"Sepal.Width" : 2.7,
-## 		"Petal.Length" : 5.1,
-## 		"Petal.Width" : 1.6,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.4,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 4.5,
-## 		"Petal.Width" : 1.5,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6,
-## 		"Sepal.Width" : 3.4,
-## 		"Petal.Length" : 4.5,
-## 		"Petal.Width" : 1.6,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.7,
-## 		"Sepal.Width" : 3.1,
-## 		"Petal.Length" : 4.7,
-## 		"Petal.Width" : 1.5,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.3,
-## 		"Sepal.Width" : 2.3,
-## 		"Petal.Length" : 4.4,
-## 		"Petal.Width" : 1.3,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.6,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 4.1,
-## 		"Petal.Width" : 1.3,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.5,
-## 		"Sepal.Width" : 2.5,
-## 		"Petal.Length" : 4,
-## 		"Petal.Width" : 1.3,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.5,
-## 		"Sepal.Width" : 2.6,
-## 		"Petal.Length" : 4.4,
-## 		"Petal.Width" : 1.2,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.1,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 4.6,
-## 		"Petal.Width" : 1.4,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.8,
-## 		"Sepal.Width" : 2.6,
-## 		"Petal.Length" : 4,
-## 		"Petal.Width" : 1.2,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5,
-## 		"Sepal.Width" : 2.3,
-## 		"Petal.Length" : 3.3,
-## 		"Petal.Width" : 1,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.6,
-## 		"Sepal.Width" : 2.7,
-## 		"Petal.Length" : 4.2,
-## 		"Petal.Width" : 1.3,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.7,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 4.2,
-## 		"Petal.Width" : 1.2,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.7,
-## 		"Sepal.Width" : 2.9,
-## 		"Petal.Length" : 4.2,
-## 		"Petal.Width" : 1.3,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.2,
-## 		"Sepal.Width" : 2.9,
-## 		"Petal.Length" : 4.3,
-## 		"Petal.Width" : 1.3,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.1,
-## 		"Sepal.Width" : 2.5,
-## 		"Petal.Length" : 3,
-## 		"Petal.Width" : 1.1,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.7,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 4.1,
-## 		"Petal.Width" : 1.3,
-## 		"Species" : "versicolor"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.3,
-## 		"Sepal.Width" : 3.3,
-## 		"Petal.Length" : 6,
-## 		"Petal.Width" : 2.5,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.8,
-## 		"Sepal.Width" : 2.7,
-## 		"Petal.Length" : 5.1,
-## 		"Petal.Width" : 1.9,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 7.1,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 5.9,
-## 		"Petal.Width" : 2.1,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.3,
-## 		"Sepal.Width" : 2.9,
-## 		"Petal.Length" : 5.6,
-## 		"Petal.Width" : 1.8,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.5,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 5.8,
-## 		"Petal.Width" : 2.2,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 7.6,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 6.6,
-## 		"Petal.Width" : 2.1,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 4.9,
-## 		"Sepal.Width" : 2.5,
-## 		"Petal.Length" : 4.5,
-## 		"Petal.Width" : 1.7,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 7.3,
-## 		"Sepal.Width" : 2.9,
-## 		"Petal.Length" : 6.3,
-## 		"Petal.Width" : 1.8,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.7,
-## 		"Sepal.Width" : 2.5,
-## 		"Petal.Length" : 5.8,
-## 		"Petal.Width" : 1.8,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 7.2,
-## 		"Sepal.Width" : 3.6,
-## 		"Petal.Length" : 6.1,
-## 		"Petal.Width" : 2.5,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.5,
-## 		"Sepal.Width" : 3.2,
-## 		"Petal.Length" : 5.1,
-## 		"Petal.Width" : 2,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.4,
-## 		"Sepal.Width" : 2.7,
-## 		"Petal.Length" : 5.3,
-## 		"Petal.Width" : 1.9,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.8,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 5.5,
-## 		"Petal.Width" : 2.1,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.7,
-## 		"Sepal.Width" : 2.5,
-## 		"Petal.Length" : 5,
-## 		"Petal.Width" : 2,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.8,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 5.1,
-## 		"Petal.Width" : 2.4,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.4,
-## 		"Sepal.Width" : 3.2,
-## 		"Petal.Length" : 5.3,
-## 		"Petal.Width" : 2.3,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.5,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 5.5,
-## 		"Petal.Width" : 1.8,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 7.7,
-## 		"Sepal.Width" : 3.8,
-## 		"Petal.Length" : 6.7,
-## 		"Petal.Width" : 2.2,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 7.7,
-## 		"Sepal.Width" : 2.6,
-## 		"Petal.Length" : 6.9,
-## 		"Petal.Width" : 2.3,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6,
-## 		"Sepal.Width" : 2.2,
-## 		"Petal.Length" : 5,
-## 		"Petal.Width" : 1.5,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.9,
-## 		"Sepal.Width" : 3.2,
-## 		"Petal.Length" : 5.7,
-## 		"Petal.Width" : 2.3,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.6,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 4.9,
-## 		"Petal.Width" : 2,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 7.7,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 6.7,
-## 		"Petal.Width" : 2,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.3,
-## 		"Sepal.Width" : 2.7,
-## 		"Petal.Length" : 4.9,
-## 		"Petal.Width" : 1.8,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.7,
-## 		"Sepal.Width" : 3.3,
-## 		"Petal.Length" : 5.7,
-## 		"Petal.Width" : 2.1,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 7.2,
-## 		"Sepal.Width" : 3.2,
-## 		"Petal.Length" : 6,
-## 		"Petal.Width" : 1.8,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.2,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 4.8,
-## 		"Petal.Width" : 1.8,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.1,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 4.9,
-## 		"Petal.Width" : 1.8,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.4,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 5.6,
-## 		"Petal.Width" : 2.1,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 7.2,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 5.8,
-## 		"Petal.Width" : 1.6,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 7.4,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 6.1,
-## 		"Petal.Width" : 1.9,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 7.9,
-## 		"Sepal.Width" : 3.8,
-## 		"Petal.Length" : 6.4,
-## 		"Petal.Width" : 2,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.4,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 5.6,
-## 		"Petal.Width" : 2.2,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.3,
-## 		"Sepal.Width" : 2.8,
-## 		"Petal.Length" : 5.1,
-## 		"Petal.Width" : 1.5,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.1,
-## 		"Sepal.Width" : 2.6,
-## 		"Petal.Length" : 5.6,
-## 		"Petal.Width" : 1.4,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 7.7,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 6.1,
-## 		"Petal.Width" : 2.3,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.3,
-## 		"Sepal.Width" : 3.4,
-## 		"Petal.Length" : 5.6,
-## 		"Petal.Width" : 2.4,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.4,
-## 		"Sepal.Width" : 3.1,
-## 		"Petal.Length" : 5.5,
-## 		"Petal.Width" : 1.8,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 4.8,
-## 		"Petal.Width" : 1.8,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.9,
-## 		"Sepal.Width" : 3.1,
-## 		"Petal.Length" : 5.4,
-## 		"Petal.Width" : 2.1,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.7,
-## 		"Sepal.Width" : 3.1,
-## 		"Petal.Length" : 5.6,
-## 		"Petal.Width" : 2.4,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.9,
-## 		"Sepal.Width" : 3.1,
-## 		"Petal.Length" : 5.1,
-## 		"Petal.Width" : 2.3,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.8,
-## 		"Sepal.Width" : 2.7,
-## 		"Petal.Length" : 5.1,
-## 		"Petal.Width" : 1.9,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.8,
-## 		"Sepal.Width" : 3.2,
-## 		"Petal.Length" : 5.9,
-## 		"Petal.Width" : 2.3,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.7,
-## 		"Sepal.Width" : 3.3,
-## 		"Petal.Length" : 5.7,
-## 		"Petal.Width" : 2.5,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.7,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 5.2,
-## 		"Petal.Width" : 2.3,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.3,
-## 		"Sepal.Width" : 2.5,
-## 		"Petal.Length" : 5,
-## 		"Petal.Width" : 1.9,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.5,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 5.2,
-## 		"Petal.Width" : 2,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 6.2,
-## 		"Sepal.Width" : 3.4,
-## 		"Petal.Length" : 5.4,
-## 		"Petal.Width" : 2.3,
-## 		"Species" : "virginica"
-## 	},
-## 	{
-## 		"Sepal.Length" : 5.9,
-## 		"Sepal.Width" : 3,
-## 		"Petal.Length" : 5.1,
-## 		"Petal.Width" : 1.8,
-## 		"Species" : "virginica"
-## 	}
-## ]
+## [1] "There are 53 properties worth in excess of 1M"
+```
+
+Question 2
+Use the data you loaded from Question 1. Consider the variable FES in the code book. Which of the "tidy data" principles does this variable violate?
+
+The principles of tidy data are 
+
+1. Each variable should be in its own column
+2. Each observation should be in its own row
+3. There should be one table for every kind of variable (eg: all twitter data is in one table, tall fb data is in another)
+4. If there are multiple tables, they should include a coulmn in the table that allow them to be linked
+
+FES 1   
+ Family type and employment status        
+ b .N/A (GQ/vacant/not a family)  
+ 1 .Married-couple family: Husband and wife in LF  
+ 2 .Married-couple family: Husband in labor force, wife
+ .not in LF  
+ 3 .Married-couple family: Husband not in LF,
+ .wife in LF  
+ 4 .Married-couple family: Neither husband nor wife in
+ .LF  
+ 5 .Other family: Male householder, no wife present, in
+ .LF  
+ 6 .Other family: Male householder, no wife present, 
+ .not in LF  
+ 7 .Other family: Female householder, no husband
+ .present, in LF  
+ 8 .Other family: Female householder, no husband 
+ .present, not in LF   
+ 
+ Here, several variables are grouped together: 
+ 
+ 1. Married couple or Other family
+ 2. Male or Female Householder
+ 3. Spouse present or Not
+ 4. In Labour Force, or Not In Labour Force
+ 5. Spouse in Labour Force or Spouse Not In Labour Force
+ 
+ According to the Principles of Tidy Data, each of these vaibales should be listed in its own column
+ 
+Question 3  
+Download the Excel spreadsheet on Natural Gas Aquisition Program here: 
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx 
+Read rows 18-23 and columns 7-15 into R and assign the result to a variable called dat.
+What is the value of:
+ sum(dat$Zip*dat$Ext,na.rm=T) 
+(original data source: http://catalog.data.gov/dataset/natural-gas-acquisition-program)
+
+Solution outline:  
+1. run createAndDownload()  
+2. assign rowInd:=18-23 and colInd:=7-15  
+3. read in those specific rows and colums using read.xlsx()  
+4. evaluate the given expression
+
+
+```r
+fileUrl<-"https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2FDATA.gov_NGAP.xlsx"
+dest<-createAndDownload(fileUrl = fileUrl, dir = "NGA", filename = "NGAdata", ext = ".xlsx") 
+rowInds<-18:23
+colInds<-7:15
+dat<-read.xlsx(file = dest, sheetIndex = 1, rowIndex = rowInds, colIndex = colInds, header = T)
+sum(dat$Zip*dat$Ext,na.rm=T) 
 ```
 
 ```
-## NULL
+## [1] 36534720
+```
+
+Question 4  
+Read the XML data on Baltimore restaurants from here: 
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml 
+How many restaurants have zipcode 21231?
+
+Solution Outline  
+1. Use xmlTreeParse to parse and read in the data  
+2. use xpathSApply() to abtain all zip codes  
+3. use which() to locate all zipcodes equal to 21231  
+4. use length to get the number of restaurants with the required zip code  
+
+
+```r
+fileURL<-"https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Frestaurants.xml"
+fileUrl<-sub(pattern = "s", replacement = "", x = fileURL)
+doc<-xmlTreeParse(file = fileUrl, useInternalNodes = T)
+zips<-xpathSApply(doc = doc, path = "//zipcode", fun = xmlValue)
+keep<-which(zips %in% 21231)
+length(keep)
+```
+
+```
+## [1] 127
+```
+
+Question 5  
+The American Community Survey distributes downloadable data about United States communities. Download the 2006 microdata survey about housing for the state of Idaho using download.file() from here: 
+https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv 
+using the fread() command load the data into an R object called DT.   
+
+Which of the following is the fastest way to calculate the average value of the variable  
+pwgtp15   
+broken down by sex using the data.table package?
+
+1. rowMeans(DT)[DT$SEX==1]; rowMeans(DT)[DT$SEX==2]        		
+2. mean(DT$pwgtp15,by=DT$SEX)			
+3. DT[,mean(pwgtp15),by=SEX]			
+4. tapply(DT$pwgtp15,DT$SEX,mean)			
+5. mean(DT[DT$SEX==1,]$pwgtp15); mean(DT[DT$SEX==2,]$pwgtp15)			
+6. sapply(split(DT$pwgtp15,DT$SEX),mean)
+
+Firstly, fread(), ([Fast and friendly file finagler](http://www.inside-r.org/packages/cran/data.table/docs/fread)) is more-or-less just a faster version of read.table()
+
+### Aside: the data.table package
+
+* data.table inherits from data.frame, so all functions that accept data.frame will also accept data.table
+* much faster at subsetting, grouping and updting variables
+
+Data tables are created in exactly the same way as data frames
+
+```r
+library(data.table)
+set.seed(1)
+df<-data.frame(x=1:9, y=rep(c("a","b", "c"), 3), z=rnorm(9))
+df
+```
+
+```
+##   x y       z
+## 1 1 a -0.6265
+## 2 2 b  0.1836
+## 3 3 c -0.8356
+## 4 4 a  1.5953
+## 5 5 b  0.3295
+## 6 6 c -0.8205
+## 7 7 a  0.4874
+## 8 8 b  0.7383
+## 9 9 c  0.5758
+```
+
+```r
+class(df)
+```
+
+```
+## [1] "data.frame"
+```
+
+```r
+dt<-data.table(x=1:9, y=rep(c("a","b", "c"), 3), z=rnorm(9))
+dt
+```
+
+```
+##    x y        z
+## 1: 1 a -0.30539
+## 2: 2 b  1.51178
+## 3: 3 c  0.38984
+## 4: 4 a -0.62124
+## 5: 5 b -2.21470
+## 6: 6 c  1.12493
+## 7: 7 a -0.04493
+## 8: 8 b -0.01619
+## 9: 9 c  0.94384
+```
+
+```r
+class(dt)
+```
+
+```
+## [1] "data.table" "data.frame"
+```
+To see all the data.tables in memory
+
+```r
+tables()
+```
+
+```
+##      NAME   NROW MB
+## [1,] dt        9  1
+## [2,] DT   14,931 14
+##      COLS                                                                            
+## [1,] x,y,z                                                                           
+## [2,] RT,SERIALNO,SPORDER,PUMA,ST,ADJUST,PWGTP,AGEP,CIT,COW,DDRS,DEYE,DOUT,DPHY,DREM,D
+##      KEY
+## [1,]    
+## [2,]    
+## Total: 15MB
+```
+Row subsetting is as usual
+
+```r
+dt[1,]
+```
+
+```
+##    x y       z
+## 1: 1 a -0.3054
+```
+
+```r
+dt[dt$y=="a"]
+```
+
+```
+##    x y        z
+## 1: 1 a -0.30539
+## 2: 4 a -0.62124
+## 3: 7 a -0.04493
+```
+Column subsetting is way different. Within the [], everything after the comma is an expression, which is used to summarize the data in different ways. 
+
+```r
+dt[, list(mean(x), sum(z))]
+```
+
+```
+##    V1     V2
+## 1:  5 0.7679
+```
+
+```r
+#add a column w that is the sum of z and x
+dt[, w:=z+x]
+```
+
+```
+##    x y        z      w
+## 1: 1 a -0.30539 0.6946
+## 2: 2 b  1.51178 3.5118
+## 3: 3 c  0.38984 3.3898
+## 4: 4 a -0.62124 3.3788
+## 5: 5 b -2.21470 2.7853
+## 6: 6 c  1.12493 7.1249
+## 7: 7 a -0.04493 6.9551
+## 8: 8 b -0.01619 7.9838
+## 9: 9 c  0.94384 9.9438
+```
+
+```r
+# expressions can be multistep (for this you enclose in {}, and seperate steps with ;)
+dt[, m:={temp<-(x-2+z); log2(temp+5)}]
+```
+
+```
+##    x y        z      w     m
+## 1: 1 a -0.30539 0.6946 1.885
+## 2: 2 b  1.51178 3.5118 2.703
+## 3: 3 c  0.38984 3.3898 2.676
+## 4: 4 a -0.62124 3.3788 2.673
+## 5: 5 b -2.21470 2.7853 2.532
+## 6: 6 c  1.12493 7.1249 3.340
+## 7: 7 a -0.04493 6.9551 3.315
+## 8: 8 b -0.01619 7.9838 3.457
+## 9: 9 c  0.94384 9.9438 3.694
+```
+
+```r
+dt[, a:=z>0]
+```
+
+```
+##    x y        z      w     m     a
+## 1: 1 a -0.30539 0.6946 1.885 FALSE
+## 2: 2 b  1.51178 3.5118 2.703  TRUE
+## 3: 3 c  0.38984 3.3898 2.676  TRUE
+## 4: 4 a -0.62124 3.3788 2.673 FALSE
+## 5: 5 b -2.21470 2.7853 2.532 FALSE
+## 6: 6 c  1.12493 7.1249 3.340  TRUE
+## 7: 7 a -0.04493 6.9551 3.315 FALSE
+## 8: 8 b -0.01619 7.9838 3.457 FALSE
+## 9: 9 c  0.94384 9.9438 3.694  TRUE
+```
+
+```r
+dt[, b:=mean(x+w), by=a]
+```
+
+```
+##    x y        z      w     m     a     b
+## 1: 1 a -0.30539 0.6946 1.885 FALSE  9.36
+## 2: 2 b  1.51178 3.5118 2.703  TRUE 10.99
+## 3: 3 c  0.38984 3.3898 2.676  TRUE 10.99
+## 4: 4 a -0.62124 3.3788 2.673 FALSE  9.36
+## 5: 5 b -2.21470 2.7853 2.532 FALSE  9.36
+## 6: 6 c  1.12493 7.1249 3.340  TRUE 10.99
+## 7: 7 a -0.04493 6.9551 3.315 FALSE  9.36
+## 8: 8 b -0.01619 7.9838 3.457 FALSE  9.36
+## 9: 9 c  0.94384 9.9438 3.694  TRUE 10.99
+```
+A unique aspect of data tables is that they have keys, so if you set the key, you'll be able to subset and sort a data table much more rapidly than you would be able to do with a data frame
+
+```r
+tables()
+```
+
+```
+##      NAME   NROW MB
+## [1,] dt        9  1
+## [2,] DT   14,931 14
+##      COLS                                                                            
+## [1,] x,y,z,w,m,a,b                                                                   
+## [2,] RT,SERIALNO,SPORDER,PUMA,ST,ADJUST,PWGTP,AGEP,CIT,COW,DDRS,DEYE,DOUT,DPHY,DREM,D
+##      KEY
+## [1,]    
+## [2,]    
+## Total: 15MB
+```
+
+```r
+setkey(x = dt, y)
+tables()
+```
+
+```
+##      NAME   NROW MB
+## [1,] dt        9  1
+## [2,] DT   14,931 14
+##      COLS                                                                            
+## [1,] x,y,z,w,m,a,b                                                                   
+## [2,] RT,SERIALNO,SPORDER,PUMA,ST,ADJUST,PWGTP,AGEP,CIT,COW,DDRS,DEYE,DOUT,DPHY,DREM,D
+##      KEY
+## [1,] y  
+## [2,]    
+## Total: 15MB
+```
+
+```r
+dt['c']
+```
+
+```
+##    y x      z     w     m    a     b
+## 1: c 3 0.3898 3.390 2.676 TRUE 10.99
+## 2: c 6 1.1249 7.125 3.340 TRUE 10.99
+## 3: c 9 0.9438 9.944 3.694 TRUE 10.99
+```
+There are more to data tables, but those notes belong in merging data
+
+Solution Outline
+1. Eliminate commands which do not return the average value of pwgtp15 
+2. use system.time()[[1]] to capture the user time, and determine which is the fastest
+
+
+```r
+fileURL<-"https://d396qusza40orc.cloudfront.net/getdata%2Fdata%2Fss06pid.csv"
+dest<-createAndDownload(fileUrl = fileURL, dir = "microdatasurvey", filename = "housingMicrodata2", ext = ".csv")
+DT<-fread(input = dest, sep =",")
+```
+run the commands one by one in console to determine which produce the desired result. This eliminates choices 1 and 2
+
+```r
+system.time(DT[,mean(pwgtp15),by=SEX])[[1]]
+```
+
+```
+## [1] 0.002
+```
+
+```r
+system.time(tapply(DT$pwgtp15,DT$SEX,mean))[[1]]
+```
+
+```
+## [1] 0.001
+```
+
+```r
+system.time({mean(DT[DT$SEX==1,]$pwgtp15); mean(DT[DT$SEX==2,]$pwgtp15)})[[1]]
+```
+
+```
+## [1] 0.055
+```
+
+```r
+system.time(sapply(split(DT$pwgtp15,DT$SEX),mean))[[1]]
+```
+
+```
+## [1] 0.001
+```
+The fourth option seems the clear winner, but it makes sense to repeat the experiment 100 times, and take the cumulative average
+
+```r
+trials<-matrix(nrow = 4, ncol=100, 
+               dimnames = list(c("method1","method2","method3","method4")))
+count<-0
+# try to redo this using ~apply
+for (i in (1:100)){
+        time1<-system.time(DT[,mean(pwgtp15),by=SEX])
+        trials[1, i]<-(time1[[1]])
+        time2<-system.time(tapply(DT$pwgtp15,DT$SEX,mean))
+        trials[2, i]<-time2[[1]]
+        time3<-system.time({mean(DT[DT$SEX==1,]$pwgtp15); mean(DT[DT$SEX==2,]$pwgtp15)})
+        trials[3, i]<- time3[[1]]
+        time4<-system.time(sapply(split(DT$pwgtp15,DT$SEX),mean))
+        trials[4, i]<-time4[[1]]
+}
+method1av_time<-cumsum(trials[1, ])/seq_along(trials[1,])
+method2av_time<-cumsum(trials[2, ])/seq_along(trials[2,])
+method3av_time<-cumsum(trials[3, ])/seq_along(trials[3,])
+method4av_time<-cumsum(trials[4, ])/seq_along(trials[4,])
+times<- c(tail(method1av_time, 1), tail(method2av_time, 1), tail(method3av_time, 1), tail(method4av_time, 1))
+best<-which(times %in% min(times))
+paste("fastest time (user) acheived by method", best, sep = " ")
+```
+
+```
+## [1] "fastest time (user) acheived by method 4"
 ```
