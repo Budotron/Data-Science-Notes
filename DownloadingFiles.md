@@ -57,22 +57,10 @@ dest<-getandload(fileUrl, dir="camera", filename="camera", ext = ".csv")
 # because the variable names are included at the top of each file, header = T
 camdat<-read.table(file = dest, header = T, sep = ",")
 ```
-In the case that we are wroking with a .csv file, as here, read.csv() can be used. It sets sep =", " and header =T by default
+In the case that we are working with a .csv file, as here, read.csv() can be used. It sets sep =", " and header =T by default
 
 ```r
-camdat2<-read.csv("./cameradata/camera.csv")
-```
-
-```
-## Warning: cannot open file './cameradata/camera.csv': No such file or
-## directory
-```
-
-```
-## Error: cannot open the connection
-```
-
-```r
+camdat2<-read.csv("./camera/camera.csv")
 all.equal(camdat, camdat2)
 ```
 
@@ -92,7 +80,7 @@ _*Troubleshooting*_
 
 ### Excel 
 
-1. require the xlsx packacge
+1. require the xlsx package
 2. run getandload() with the appropriate parameters
 3. in step 3, use read.xlsx() instead of read.table() specifying which sheet the data is stored on with sheetIndex, and specify the header, if necessary
 
@@ -264,7 +252,7 @@ xpathSApply(doc=top, "//name", xmlValue)
 
 ### HTML
 
-Right click [here](view-source:http://espn.go.com/nfl/team/_/name/bal/baltimore-ravens), and view the source. We want to drill into this sourcecode and extract some information
+Right click [here](view-source:http://espn.go.com/nfl/team/_/name/bal/baltimore-ravens), and view the source. We want to drill into this source code and extract some information
 
 Load the data with **html**TreeParse. Remember to delete "view source" from the head of the url
 
@@ -277,7 +265,7 @@ str(doc)
 ```
 ## Classes 'HTMLInternalDocument', 'HTMLInternalDocument', 'XMLInternalDocument', 'XMLAbstractDocument' <externalptr>
 ```
-Look for "list items" (li) wwith a particular class (in the example below, equal to score)
+Look for "list items" (li) with a particular class (in the example below, equal to score)
 
 ```r
 xpathSApply(doc, "//li[@class ='score']", xmlValue)
@@ -298,8 +286,8 @@ xpathSApply(doc, "//li[@class ='team-name']", xmlValue)
 ## [13] "Miami"        "Jacksonville" "Houston"      "Cleveland"
 ```
 ### JSON
-JSON files are similar to XML files insofar as they are stuructured, and is very commonly used in Application Programming Interfaces. APIs are how you can access the data for companies like Twitter or facebook through URLs.   
-Click [here](https://api.github.com/users/jtleek/repos) to obain the API for the github API containing data about the repos that the instructor's contributing to.   
+JSON files are similar to XML files insofar as they are structured, and is very commonly used in Application Programming Interfaces. APIs are how you can access the data for companies like Twitter or facebook through URLs.   
+Click [here](https://api.github.com/users/jtleek/repos) to obtain the API for the github API containing data about the repos that the instructor's contributing to.   
 Reading data from a JSON file is similar to reading from an XML file
 
 ```r
