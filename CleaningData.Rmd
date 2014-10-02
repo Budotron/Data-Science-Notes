@@ -4,9 +4,12 @@ author: "Varun Boodram"
 date: "September 24, 2014"
 output: html_document
 ---
+Steps in obtaining data
+1. Create a directory to store the file in 
+2. Download the file with download.file()
+3. read in the file
 
-The key process of data cleaning is looking at the data that you've loaded into R, and identifying any missing values, or other quirks or weird issues that you need to address before you do downstream analysis.   
-eg: data from [Open Baltimore](https://data.baltimorecity.gov/Culture-Arts/Restaurants/k5ry-ef3g), Restaurant Data
+*read.table() is the most commonly used 
 ```{r, cache=T}
 getandload<-function(x){
         if(!file.exists("./restaurantdata")){
@@ -14,14 +17,18 @@ getandload<-function(x){
         }
         fileurl<-x
         if(!file.exists("./restaurantdata/restaurant.csv")){
-                download.file(url = fileurl, destfile = "./restaurantdata/restaurant.csv", method = "curl")
+                download.file(url = fileurl, destfile = "./restaurantdata/restaurant.csv", method = "curl") #destfile is what we want to call the downloded file. The extension reflects the type of file
                 datedownloaded<-date()
         }
         read.csv("./restaurantdata/restaurant.csv", header = T, sep = ",")
 }
-resdat<-getandload("https://data.baltimorecity.gov/api/views/k5ry-ef3g/rows.csv?accessType=DOWNLOAD")
+fileUrl<-"https://data.baltimorecity.gov/api/views/k5ry-ef3g/rows.csv?accessType=DOWNLOAD"
+resdat<-getandload(fileUrl)
 list.files("./restaurantdata")
 ```
+The key process of data cleaning is looking at the data that you've loaded into R, and identifying any missing values, or other quirks or weird issues that you need to address before you do downstream analysis.   
+eg: data from [Open Baltimore](https://data.baltimorecity.gov/Culture-Arts/Restaurants/k5ry-ef3g), Restaurant Data
+
 Steps in cleaning data
 
 1. Create data summaries

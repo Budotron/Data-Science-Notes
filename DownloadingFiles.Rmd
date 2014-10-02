@@ -1,0 +1,183 @@
+---
+title: 'CGD: Downloading Files'
+date: "September 24, 2014"
+output: html_document
+---
+## Downloading the files
+First steps
+
+* know what directory you are in 
+* use getwd() and setwd(), as necessary
+* setwd("../") moves up one directory
+
+1. Create a directory for the data to fall into, if such a directory doesn't already exist
+
+if (!file.exists("directory name")){  
+        dir.create("directory name")  
+}
+
+2. Get the data. download.file() is the main way that we obtain internet data
+. *Always* include the time of download
+
+download.file(url = , destfile = "./directory name/filename.ext", method = "curl")  
+dateDownloaded<-date()
+
+The downloaded files can be viewed with list.files("./directory name")
+
+3. The file is now stored locally. The most commonly used function to read it into R is read.table(). It is the most robust, and allows the most flexibility.   
+However, because of its slowness, it is not the best method to read large tables into R. 
+
+eg: downloading data on [Baltimore Fixed Speed Camera](https://data.baltimorecity.gov/Transportation/Baltimore-Fixed-Speed-Cameras/dz54-2aru) data and reading into R
+```{r}
+# Having checked that we are in the correct working directory
+
+# The following function downloads the .csv file containing data for Balitmore's Fixed Speed Cameras
+
+#Input: Link to the file, desired directory name, desired, file name, and file extension
+#Output: The path to the required file
+
+getandload<-function(fileUrl, dir, filename, ext){
+        # Step 1: create directory, if it is not already present
+        dirName<-paste("./", dir, sep = "")
+        if(!file.exists(dirName)){
+                dir.create(path = dirName)
+        }
+        # Step 2: Get the data, unless this step has already been done
+        dest<-paste(dirName,"/", filename, ext, sep = "")
+        if(!file.exists(dest)){
+                download.file(url = fileUrl, destfile = dest, method = "curl") 
+                datedownloaded<-date()
+        }
+        dest
+}
+fileUrl<-"https://data.baltimorecity.gov/api/views/dz54-2aru/rows.csv?accessType=DOWNLOAD"
+dest<-getandload(fileUrl, dir="camera", filename="camera", ext = ".csv")
+# Step 3: load the data
+# because the variable names are included at the top of each file, header = T
+camdat<-read.table(file = dest, header = T, sep = ",")
+```
+In the case that we are wroking with a .csv file, as here, read.csv() can be used. It sets sep =", " and header =T by default
+```{r}
+camdat2<-read.csv("./cameradata/camera.csv")
+all.equal(camdat, camdat2)
+rm(camdat2)
+```
+_*Troubleshooting*_ 
+
+* set quote ="" to tell R to ignore quoted values
+* na.strings = sets the character that represents the missing values
+
+## Reading in particular file formats
+
+### Excel 
+
+1. require the xlsx packacge
+2. run getandload() with the appropriate parameters
+3. in step 3, use read.xlsx() instead of read.table() specifying which sheet the data is stored on with sheetIndex, and specify the header, if necessary
+
+```{r}
+fileUrl<-"https://data.baltimorecity.gov/api/views/dz54-2aru/rows.xlsx?accessType=DOWNLOAD"
+dest<-getandload(fileUrl = fileUrl, dir = "camera", filename = "camera", ext = ".xls") #This is not supposed to happen. The ext should be ".xlsx", but it only works this way
+require("xlsx")
+camdat2<-read.xlsx(file = dest, sheetIndex = 1, header = T)
+```
+Nice things
+
+* you can read specific rows and columns
+```{r}
+colInd<-2:3; rowInd<-1:4
+camdat2subset<-read.xlsx(file = dest, sheetIndex = 1, rowIndex = rowInd, colIndex = colInd, header = T)
+camdat2subset
+```
+* you can write an .xlsx file out with 
+```{r}
+write.xlsx(camdat2subset, file = "./camera/camera2.xlsx")
+```
+
+### XML
+
+* short for "extensible markup language"
+* frequently used to store structured data
+* widely used in internet applications
+* extracting XML is the basis for most web scraping
+
+**Tags** correspond to general labels
+
+* start tags < section >
+* end tags < \section >
+
+**Elements** are specific examples of tags
+
+eg: < Greeting > Hello <\\ greeting >
+
+Unlike the previous examples, we do **not** use download file. Instead use xmlTreeParse to parse out the XML file given in the URL
+```{r}
+require(XML)
+fileUrl<-"http://www.w3schools.com/xml/simple.xml"
+doc<-xmlTreeParse(file = fileUrl, useInternalNodes = T)
+doc
+```
+doc is parsed into nodes. The topmost node wraps the entire document. In this case it's < breakfast_menu>
+```{r}
+top<-xmlRoot(doc)
+xmlName(top)
+```
+The elements in between the root node is given by names. Each item is wrapped within a "food" element
+```{r}
+#child nodes of this root
+names(top)
+```
+Accessing elements in an XML file is totally analogous to accessing elements of a list. 
+```{r}
+#first element of the rootnode
+top[[1]]
+names(top[[1]])
+#Suppose we want to extract the price of the first element
+top[[1]][["price"]]
+# Extract the price  variable of all elements
+xpathSApply(doc = top, "//price", xmlValue)
+# similarly
+xpathSApply(doc=top, "//name", xmlValue)
+```
+
+### HTML
+
+Right click [here](view-source:http://espn.go.com/nfl/team/_/name/bal/baltimore-ravens), and view the source. We want to drill into this sourcecode and extract some information
+
+Load the data with **html**TreeParse. Remember to delete "view source" from the head of the url
+```{r}
+fileUrl<-"http://espn.go.com/nfl/team/_/name/bal/baltimore-ravens"
+doc<-htmlTreeParse(file = fileUrl, useInternalNodes = T)
+str(doc)
+```
+Look for "list items" (li) wwith a particular class (in the example below, equal to score)
+```{r}
+xpathSApply(doc, "//li[@class ='score']", xmlValue)
+xpathSApply(doc, "//li[@class ='team-name']", xmlValue)
+```
+### JSON
+JSON files are similar to XML files insofar as they are stuructured, and is very commonly used in Application Programming Interfaces. APIs are how you can access the data for companies like Twitter or facebook through URLs.   
+Click [here](https://api.github.com/users/jtleek/repos) to obain the API for the github API containing data about the repos that the instructor's contributing to.   
+Reading data from a JSON file is similar to reading from an XML file
+```{r}
+require(jsonlite)
+fileUrl<-"https://api.github.com/users/jtleek/repos"
+jsonData<-fromJSON(fileUrl)
+names(jsonData)
+```
+jsonData is a *data frame* of *data frames*. 
+```{r}
+class(jsonData)
+# recall how to subset a data frame
+c(head(jsonData[1]), head(jsonData["id"]))
+jsonData$id
+# jsonData$owner is another dataframe
+names(jsonData$owner)
+#so we can drill further down, eg
+jsonData$owner$login
+```
+If we have to export to an API that requires API formatted data, use toJSON. To view the file use the **C**oncatenate **A**nd Prin**t** command, cat()
+```{r}
+myJson<-toJSON(iris, pretty = T)
+head(cat(myJson))
+```

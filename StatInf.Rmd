@@ -1,0 +1,86 @@
+---
+title: "Statistical Inference Notes"
+author: "Varun Boodram"
+date: "October 1, 2014"
+output: html_document
+---
+
+The goal of statistical inference is to infer facts about a population from a sample of that population
+
+## Basic Probability
+Given a random experiment, a probability measure is a **population quantity** that summarizes the randomness
+
+* in a die roll experiment, a probability measure is an intrinsic property of the die
+* probability does not exist in the data that we have, but as a conceptual thing that exists in the population. 
+
+### Axioms
+If $S$ is the sample space, 
+
+* $P(S)=1$; $P(S^c)=P(\phi))=0$ i.e.: something must occur; the probability of nothing occurring is 0
+* If $A\in S, 0\leq P(A)\leq1$
+* If $A \cap B \neq 0, P(A \cup B) =P(A)+P(B)-P(A\cap B)$
+
+
+### Examples
+A **probability distribution** lists all possible outcomes in the sample space and the probabilities with which they occur. 
+
+eg: Let $X$ be the result of a coin flip, where $X=0$ represents tails. Let $P(\theta)$ be the probability of a tail. 
+$$P(x)=\theta^{x}(1-\theta)^{(1-x)}, x= 0, 1$$
+This is useful for modeling the prevalence of something (say, high blood pressure). 
+
+eg: Suppose the proportion of help calls that get addressed in a random day by a help line is given by 
+$$
+f(x) = \left\{
+        \begin{array}{ll}
+            2x & \quad 0 < x < 1 \\
+            0 & \quad else
+        \end{array}
+    \right.
+$$
+
+```{r}
+x<-c(-.5, 0, 0.5, 1, 1.000001, 1.5)
+y<-sapply(X = x, function(x) ifelse(test = 0<x & x<=1,yes = 2*x, no = 0))
+plot(x, y, lwd=3, frame=F, type="l")
+```
+
+What is the probability that 75% or fewer calls get addressed in a randomly sampled day from this population?
+
+```{r}
+height<-2*0.75
+prob<-height*0.75/2; prob
+```
+
+The above density is a special case of what is called a *beta distribution*. The letter *p* in front of a density gives the probability
+```{r}
+pbeta(q = 0.75, shape1 = 2, shape2 = 1)
+```
+p+density name returns the CDF of a random variable $X$, $$F(x)=P(X\leq x)$$
+The **survival function** $S(x)=1-F(x)=P(X>x)$
+
+### Quantiles
+The $\alpha$th **quantile** of a distribution with the function $F$ is the point $x_{\alpha}$ such that $$F(x_{\alpha})=\alpha$$
+q+density name gives the qth quantile
+```{r}
+median<-qbeta(p = 0.5, shape1 = 2, shape2 = 1); median
+```
+
+### Conditional Probablilty
+If $P(B)> 0$, $P(A\vert B)\overset{\Delta}{=}\frac{P(A \cap B)}{P(B)}$  
+If $P(A \vert B)=P(A)$, $A$ and $B$ are independent.   
+Bayes' Rule
+$$P(B\vert A)=\frac{P(A\vert B)P(B)}{P(A\vert B)P(B)+P(A\vert B^c)P(B^c)}$$
+
+eg: 29.5 % of a population is infected with HIV.  An HIV test is 99.7% accurate for people carrying HIV, and 92.6 % accurate for those who don't carry HIV. If an individual tests positive, what is the probability that he carries HIV? 
+
+solution steps
+
+1. Identify what you are trying to figure out
+$$P(\text{carries HIV}\vert +)$$
+2. Draw tree diagram
+```{r}
+require(openintro)
+treeDiag(c('Carries HIV?','Tests Positive?'),
+        c(.295,(1-.295)), list(c(.997,(1-.997)), c((1-.926),.926)))
+```
+3. $P(\text{carries HIV}\vert +)= \frac{P(\text{carries HIV} \cap +)}{P(+)}=\frac{0.2941}{0.2941+0.0522}$
