@@ -260,11 +260,18 @@ Load the data with **html**TreeParse. Remember to delete "view source" from the 
 ```r
 fileUrl<-"http://espn.go.com/nfl/team/_/name/bal/baltimore-ravens"
 doc<-htmlTreeParse(file = fileUrl, useInternalNodes = T)
+```
+
+```
+## Error: failed to load external entity "http://espn.go.com/nfl/team/_/name/bal/baltimore-ravens"
+```
+
+```r
 str(doc)
 ```
 
 ```
-## Classes 'HTMLInternalDocument', 'HTMLInternalDocument', 'XMLInternalDocument', 'XMLAbstractDocument' <externalptr>
+## Classes 'XMLInternalDocument', 'XMLAbstractDocument' <externalptr>
 ```
 Look for "list items" (li) with a particular class (in the example below, equal to score)
 
@@ -273,7 +280,7 @@ xpathSApply(doc, "//li[@class ='score']", xmlValue)
 ```
 
 ```
-## [1] "23-16" "26-6"  "23-21" "38-10"
+## list()
 ```
 
 ```r
@@ -281,10 +288,7 @@ xpathSApply(doc, "//li[@class ='team-name']", xmlValue)
 ```
 
 ```
-##  [1] "Cincinnati"   "Pittsburgh"   "Cleveland"    "Carolina"    
-##  [5] "Indianapolis" "Tampa Bay"    "Atlanta"      "Cincinnati"  
-##  [9] "Pittsburgh"   "Tennessee"    "New Orleans"  "San Diego"   
-## [13] "Miami"        "Jacksonville" "Houston"      "Cleveland"
+## list()
 ```
 ### JSON
 JSON files are similar to XML files insofar as they are structured, and is very commonly used in Application Programming Interfaces. APIs are how you can access the data for companies like Twitter or facebook through URLs.   
@@ -774,7 +778,7 @@ system.time(DT[,mean(pwgtp15),by=SEX])[[1]]
 ```
 
 ```
-## [1] 0.002
+## [1] 0.001
 ```
 
 ```r
@@ -790,7 +794,7 @@ system.time({mean(DT[DT$SEX==1,]$pwgtp15); mean(DT[DT$SEX==2,]$pwgtp15)})[[1]]
 ```
 
 ```
-## [1] 0.055
+## [1] 0.057
 ```
 
 ```r
@@ -800,7 +804,7 @@ system.time(sapply(split(DT$pwgtp15,DT$SEX),mean))[[1]]
 ```
 ## [1] 0.001
 ```
-The fourth option seems the clear winner, but it makes sense to repeat the experiment 100 times, and take the cumulative average
+Because of the ties, it is difficult to declare a clear winner, so it makes sense to repeat the experiment 100 times, and take the cumulative average
 
 ```r
 trials<-matrix(nrow = 4, ncol=100, 

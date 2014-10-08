@@ -366,7 +366,7 @@ system.time(tapply(DT$pwgtp15,DT$SEX,mean))[[1]]
 system.time({mean(DT[DT$SEX==1,]$pwgtp15); mean(DT[DT$SEX==2,]$pwgtp15)})[[1]]
 system.time(sapply(split(DT$pwgtp15,DT$SEX),mean))[[1]]
 ```
-The fourth option seems the clear winner, but it makes sense to repeat the experiment 100 times, and take the cumulative average
+Because of the ties, it is difficult to declare a clear winner, so it makes sense to repeat the experiment 100 times, and take the cumulative average
 ```{r}
 trials<-matrix(nrow = 4, ncol=100, 
                dimnames = list(c("method1","method2","method3","method4")))

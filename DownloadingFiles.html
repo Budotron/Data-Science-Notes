@@ -247,7 +247,7 @@ str(doc)</code></pre>
 <pre><code>## Classes 'HTMLInternalDocument', 'HTMLInternalDocument', 'XMLInternalDocument', 'XMLAbstractDocument' &lt;externalptr&gt;</code></pre>
 <p>Look for “list items” (li) with a particular class (in the example below, equal to score)</p>
 <pre class="r"><code>xpathSApply(doc, &quot;//li[@class ='score']&quot;, xmlValue)</code></pre>
-<pre><code>## [1] &quot;23-16&quot; &quot;26-6&quot;  &quot;23-21&quot; &quot;38-10&quot;</code></pre>
+<pre><code>## [1] &quot;23-16&quot; &quot;26-6&quot;  &quot;23-21&quot; &quot;38-10&quot; &quot;20-13&quot;</code></pre>
 <pre class="r"><code>xpathSApply(doc, &quot;//li[@class ='team-name']&quot;, xmlValue)</code></pre>
 <pre><code>##  [1] &quot;Cincinnati&quot;   &quot;Pittsburgh&quot;   &quot;Cleveland&quot;    &quot;Carolina&quot;    
 ##  [5] &quot;Indianapolis&quot; &quot;Tampa Bay&quot;    &quot;Atlanta&quot;      &quot;Cincinnati&quot;  
@@ -509,12 +509,12 @@ DT&lt;-fread(input = dest, sep =&quot;,&quot;)</code></pre>
 <pre class="r"><code>system.time(DT[,mean(pwgtp15),by=SEX])[[1]]</code></pre>
 <pre><code>## [1] 0.002</code></pre>
 <pre class="r"><code>system.time(tapply(DT$pwgtp15,DT$SEX,mean))[[1]]</code></pre>
-<pre><code>## [1] 0.001</code></pre>
+<pre><code>## [1] 0.002</code></pre>
 <pre class="r"><code>system.time({mean(DT[DT$SEX==1,]$pwgtp15); mean(DT[DT$SEX==2,]$pwgtp15)})[[1]]</code></pre>
 <pre><code>## [1] 0.104</code></pre>
 <pre class="r"><code>system.time(sapply(split(DT$pwgtp15,DT$SEX),mean))[[1]]</code></pre>
-<pre><code>## [1] 0.002</code></pre>
-<p>The fourth option seems the clear winner, but it makes sense to repeat the experiment 100 times, and take the cumulative average</p>
+<pre><code>## [1] 0.001</code></pre>
+<p>Because of the ties, it is difficult to declare a clear winner, so it makes sense to repeat the experiment 100 times, and take the cumulative average</p>
 <pre class="r"><code>trials&lt;-matrix(nrow = 4, ncol=100, 
                dimnames = list(c(&quot;method1&quot;,&quot;method2&quot;,&quot;method3&quot;,&quot;method4&quot;)))
 count&lt;-0

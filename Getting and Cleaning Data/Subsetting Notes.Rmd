@@ -1,0 +1,149 @@
+---
+title: "Subsetting"
+author: "Varun Boodram"
+date: "September 23, 2014"
+output: html_document
+---
+
+Depending on the class of the R object, different operators will have to be used to extract subsets of the object  
+
+### Numerical subsetting
+
+* [ ] always returns an object of the **same** class as the original. 
+
+eg: vectors
+```{r}
+x<--(1:10); x
+x[3] # third element of the vector
+c(class(x), class(x[3]))
+```
+eg: lists
+```{r}
+l<-list(foo=1:4, bar=matrix(data = 1:4,nrow = 2, ncol = 2, byrow = T))
+l
+l[2] # second element of the list
+c(class(l), class(l[2]))
+```
+Note that l[2] is a list of one element, called "bar", which is a matrix. If the elements of a list are named (as above), the name of an element index can be used to return a list. This is preferrable to use, as you don't have to remember where the element is in a list
+```{r}
+l["bar"]
+#for fun, change the names of the list
+names(l)<-c("hello", "goodbye")
+l["goodbye"]
+```
+Extracting multiple elements from a list *requires* the use of [ ]. 
+```{r}
+l2<-list(foo=1:4, bar=matrix(data = 1:4,nrow = 2, ncol = 2, byrow = T), norf = "hello")
+l2[c(1,3)]
+l2[c("bar","norf")]
+```
+eg: data frame
+```{r}
+head(iris[3])
+c(class(iris), class(iris[3]))
+```
+Matrices are an exception to the rule, "[ ] always returns an object of the same class as the orginal object." Instead of a *matrix*, by default, subsetting results in a *vector*   
+eg: matrix
+```{r}
+m<-1:10
+dim(m)<-c(2, 5)
+m[1,4] # row 1, column 4
+c(class(m), class(m[1,4]))
+```
+This behaviour can be turned off by setting the drop argument to F
+```{r}
+m[1,4, drop =F]
+c(class(m), class(m[1,4, drop =F]))
+```
+eg: arrays
+Recall that arrays are like a list of matrices. To access a single matrix in this list, use [ ], and specify all dimensions of the element you want to extract
+```{r}
+x<-1:20; dim(x)<-c(2,2,5); x
+# obtain the third matrix in the array
+x[, , 3]
+# obtain the first row of the second element in the array
+x[1, , 3]
+```
+* [[ ]] is used to extract *a single element* of a **list** or a **data frame**. This element may or may not be of the same class as the subsetted object
+
+eg: lists
+```{r}
+names(l)<-c("foo", "bar")
+l[[2]]
+c(class(l), class(l[[2]]))
+```
+The difference between l[2] and l[[2]] is that l[2] returns the one-element *list*, l[[2]] returns the object(s) in that list.   
+If the numerical index has a name, then the name can be used instead of the numerical index
+```{r}
+l[["foo"]]
+l[["bar"]]
+```
+Suppose you want to access the third element of the vector named foo. This is accomplished with *pairs of [[ ]]*
+```{r}
+l[[1]][[3]]
+```
+An alternative syntax uses a vector to access the element
+```{r}
+c(l[[c(1,3)]], l[[c(2, 3)]])
+```
+eg: data frame 
+```{r}
+head(iris[[1]])
+c(class(iris), class(iris[[1]]))
+```
+* $ is used to extract elements of a **list** or a **data frame** by name. The extracted element may or may not be of the same class as the original object. 
+eg: list
+```{r}
+l$foo
+l$bar
+c(class(l), class(l$foo), class(l$bar))
+```
+$ can *only* be used with literal names. 
+```{r}
+myname<-"foo"
+l$myname
+```
+Because myname is *not* a literal name, l$myname is meaningless. To obtain the object(s) stored under the name myname, [[ ]] are required
+```{r}
+l[[myname]]
+```
+Thus,  *computed* indices are accessed with [[ ]]   
+
+### Logical subsetting
+This is used when you want to subset by a *condition*. 
+eg: vector. The condition goes inside the brackets
+```{r}
+x<-c("a","b", "c", "c", "d", "a")
+x[x>"a"]
+```
+Logical indexing can be used to create a logical vector
+```{r}
+u<-x>"a"; u
+```
+This logical vector can now be used as a condition
+```{r}
+x[u]
+```
+This princliple can be used to remove missing values. 
+```{r}
+x<-c(1:8, rep(NA, 8))
+x<-sample(x); x
+keep<-!is.na(x); keep
+x[keep]
+```
+The complete.cases() function can be invoked when you want to perform a similar operation on more than one vector, *each of which have the same length*
+```{r}
+x<-c(1:8, rep(NA, 8)); x<-sample(x); x
+y<-c(letters[1:8], rep(NA, 8)); y<-sample(y); y
+keep<-complete.cases(x,y)
+rbind(x[keep], y[keep])
+```
+
+Logical subsetting works on the same principles as numerical subsetting
+```{r}
+l
+l[names(l)=="bar"]
+l[names(l)>"bar"]
+l2
+l2[names(l2)>"bar" | names(l2)=="norf"]
+```
